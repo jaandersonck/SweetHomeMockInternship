@@ -54,7 +54,7 @@ public class HomeFurnitureController implements Controller {
    */
   public enum Property {ICON, NAME, NAME_VISIBLE, DESCRIPTION, PRICE, X, Y, ELEVATION, ANGLE_IN_DEGREES, BASE_PLAN_ITEM, 
       WIDTH, DEPTH,  HEIGHT, PROPORTIONAL, COLOR, PAINT, SHININESS, VISIBLE, MODEL_MIRRORED, LIGHT_POWER, 
-      RESIZABLE, DEFORMABLE, TEXTURABLE, VOLUME}
+      RESIZABLE, DEFORMABLE, TEXTURABLE}
   
   /**
    * The possible values for {@linkplain #getPaint() paint type}.
@@ -595,8 +595,7 @@ public class HomeFurnitureController implements Controller {
    */
   public boolean isPropertyEditable(Property property) {
     switch (property) {
-      case VOLUME:
-        return false;
+
       case PRICE :
         return false;
       case LIGHT_POWER :
