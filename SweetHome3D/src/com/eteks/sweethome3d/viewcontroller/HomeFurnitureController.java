@@ -873,7 +873,12 @@ public class HomeFurnitureController implements Controller {
   public Float getWidth() {
     return this.width;
   }
-  
+
+  /**
+   * Returns (calculates) the volume.
+   */
+  public Float getVolume() { return this.width * this.depth * this.height; }
+
   /**
    * Sets the edited depth.
    */
