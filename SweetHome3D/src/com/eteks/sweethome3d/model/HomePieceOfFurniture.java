@@ -51,14 +51,14 @@ public class HomePieceOfFurniture extends HomeObject implements PieceOfFurniture
    * to a piece of furniture will be notified under a property name equal to the string value of one these properties.
    */
   public enum Property {NAME, NAME_VISIBLE, NAME_X_OFFSET, NAME_Y_OFFSET, NAME_STYLE, NAME_ANGLE,
-      DESCRIPTION, PRICE, WIDTH, DEPTH, HEIGHT, COLOR, TEXTURE, MODEL_MATERIALS, SHININESS, VISIBLE, X, Y, ELEVATION, ANGLE, MODEL_MIRRORED, MOVABLE, LEVEL, VOLUME};
+      DESCRIPTION, PRICE, WIDTH, DEPTH, VOLUME, HEIGHT, COLOR, TEXTURE, MODEL_MATERIALS, SHININESS, VISIBLE, X, Y, ELEVATION, ANGLE, MODEL_MIRRORED, MOVABLE, LEVEL};
   
   /** 
    * The properties on which home furniture may be sorted.  
    */
-  public enum SortableProperty {CATALOG_ID, NAME, WIDTH, DEPTH, HEIGHT, MOVABLE, 
+  public enum SortableProperty {CATALOG_ID, NAME, WIDTH, DEPTH, HEIGHT, VOLUME, MOVABLE,
                                 DOOR_OR_WINDOW, COLOR, TEXTURE, VISIBLE, X, Y, ELEVATION, ANGLE,
-                                PRICE, VALUE_ADDED_TAX, VALUE_ADDED_TAX_PERCENTAGE, PRICE_VALUE_ADDED_TAX_INCLUDED, LEVEL, VOLUME};
+                                PRICE, VALUE_ADDED_TAX, VALUE_ADDED_TAX_PERCENTAGE, PRICE_VALUE_ADDED_TAX_INCLUDED, LEVEL};
   private static final Map<SortableProperty, Comparator<HomePieceOfFurniture>> SORTABLE_PROPERTY_COMPARATORS;
   private static final float [][] IDENTITY = new float [][] {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
   
