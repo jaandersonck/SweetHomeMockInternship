@@ -381,6 +381,7 @@ public class HomePrintableComponent extends JComponent implements Printable {
         Level prevSelectedLevel = this.home.getSelectedLevel();
         List<Level> homeLevels = this.home.getLevels();
 
+        // todo: revise with multi page print
         // by this point, we know the page is NOT a FurnitureTable, and COULD be a plan
         if (pageExists == NO_SUCH_PAGE
                 && planView != null
@@ -443,6 +444,38 @@ public class HomePrintableComponent extends JComponent implements Printable {
         }
         pageFormat.setPaper(oldPaper);
         return pageExists;
+    }
+
+    public int getLevelPageCount(Level level) {
+
+        Level prevSelectedLevel = this.home.getSelectedLevel();
+        this.home.setSelectedLevel(level);
+
+        // We're specifically paying attention to printing the Plan (representation of a level)
+        // so print from it
+        final Printable planView = (Printable)this.controller.getPlanController().getView();
+
+        PageFormat pageFormat = getPageFormat(this.home.getPrint());
+        BufferedImage dummyImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        Graphics dummyGraphics = dummyImage.getGraphics();
+
+        // Count pages by printing in a dummy image
+        int levelPageCount = 0;
+        try {
+            while (planView.print(dummyGraphics, pageFormat, levelPageCount) == Printable.PAGE_EXISTS) {
+                levelPageCount++;
+            }
+        } catch (PrinterException ex) {
+            // There should be no reason that print fails if print is done on a dummy image
+            throw new RuntimeException(ex);
+        } finally {
+            // No matter what, reset the selected level
+            this.home.setSelectedLevel(prevSelectedLevel);
+        }
+        dummyGraphics.dispose();
+
+        return this.pageCount;
+
     }
 
     /**
