@@ -2075,23 +2075,15 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
     Level prevSelectedLevel = this.home.getSelectedLevel();
     this.home.setSelectedLevel(level);
 
-    // We're specifically paying attention to printing the Plan (representation of a level)
-    // so print from it
-    final Printable planView = (Printable)this.controller.getPlanController().getView();
-
-    PageFormat pageFormat = getPageFormat(this.home.getPrint());
     BufferedImage dummyImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
     Graphics dummyGraphics = dummyImage.getGraphics();
 
     // Count pages by printing in a dummy image
     int levelPageCount = 0;
     try {
-      while (planView.print(dummyGraphics, pageFormat, levelPageCount) == Printable.PAGE_EXISTS) {
+      while (singlePrint(dummyGraphics, pageFormat, levelPageCount) == Printable.PAGE_EXISTS) {
         levelPageCount++;
       }
-    } catch (PrinterException ex) {
-      // There should be no reason that print fails if print is done on a dummy image
-      throw new RuntimeException(ex);
     } finally {
       // No matter what, reset the selected level
       this.home.setSelectedLevel(prevSelectedLevel);
@@ -2105,7 +2097,19 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
      * Print based on all levels available in the plan
      */
     public int print(Graphics g, PageFormat pageFormat, int pageIndex) {
-        return singlePrint(g, pageFormat, pageIndex);
+        LevelPageInfo levelPageInfo = getLevelPageInfo(pageIndex, pageFormat);
+        int page_exists = NO_SUCH_PAGE;
+        if (levelPageInfo != null) {
+          Level prevSelectedLevel = this.home.getSelectedLevel();
+          try {
+            this.home.setSelectedLevel(levelPageInfo.level);
+            page_exists = singlePrint(g, pageFormat, levelPageInfo.pageNumber);
+          } finally {
+            this.home.setSelectedLevel(prevSelectedLevel);
+          }
+        }
+
+        return page_exists;
     }
 
     /**
