@@ -75,7 +75,6 @@ import java.awt.image.MemoryImageSource;
 import java.awt.image.RGBImageFilter;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
-import java.awt.print.PrinterException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
