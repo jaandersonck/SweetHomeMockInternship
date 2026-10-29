@@ -350,14 +350,12 @@ public class HomePrintableComponent extends JComponent implements Printable {
                     && (homePrint == null
                     || homePrint.isPlanPrinted()
                     || homePrint.isView3DPrinted())) {
-//  todo: remove      final Level selectedLevel = home.getSelectedLevel();
                 furnitureTable = (FurnitureTable) furnitureView;
                 furnitureFilter = furnitureTable.getFurnitureFilter();
                 furnitureTable.setFurnitureFilter(new FurnitureTable.FurnitureFilter() {
                     public boolean include(Home home, HomePieceOfFurniture piece) {
                         // Print only furniture at selected level when the plan or the 3D view is printed
                         return (furnitureFilter == null || furnitureFilter.include(home, piece))
-//  todo: remove                && piece.isAtLevel(selectedLevel)
                                 && (piece.getLevel() == null || piece.getLevel().isViewable());
                     }
                 });
@@ -390,11 +388,15 @@ public class HomePrintableComponent extends JComponent implements Printable {
             // Try to print next plan view page
             try {
                 int planPage = page - this.furniturePageCount;
-                // implicitly assuming that each level occupies at most a page
-                if (planPage < homeLevels.size()) {
-                    this.home.setSelectedLevel(homeLevels.get(planPage));
-                    // planview considers only home current level, so the 0th page of the target makes sense
-                    // given our assumption
+
+                // new implementation
+                // todo: need to know what specific page number this level represents, could most
+                // todo easily come from the getLevelFromPage method??
+                Level pageLevel = getLevelFromPage(planPage);
+
+
+                if (pageLevel != null) {
+                    this.home.setSelectedLevel(pageLevel);
                     pageExists = ((Printable) planView).print(g2D, pageFormat, 0);
                     if (pageExists == PAGE_EXISTS
                             && !this.printablePages.contains(page)) {
@@ -402,6 +404,20 @@ public class HomePrintableComponent extends JComponent implements Printable {
                         this.planPageCount++;
                     }
                 }
+
+                // implicitly assuming that each level occupies at most a page
+                // old implementation
+//                if (planPage < homeLevels.size()) {
+//                    this.home.setSelectedLevel(homeLevels.get(planPage));
+//                    // planview considers only home current level, so the 0th page of the target makes sense
+//                    // given our assumption
+//                    pageExists = ((Printable) planView).print(g2D, pageFormat, 0);
+//                    if (pageExists == PAGE_EXISTS
+//                            && !this.printablePages.contains(page)) {
+//                        this.printablePages.add(page);
+//                        this.planPageCount++;
+//                    }
+//                }
             } finally {
                 this.home.setSelectedLevel(prevSelectedLevel);
             }
@@ -446,8 +462,53 @@ public class HomePrintableComponent extends JComponent implements Printable {
         return pageExists;
     }
 
-    public int getLevelPageCount(Level level) {
+    /**
+     * Return a Level, or null, given a 0-indexed page number relative to the number of level pages.
+     * i.e. page 0 is the first page containing a level.
+     */
+    private Level getLevelFromPage(int page) {
+        // map level to its page count
+        Map<Level, Integer> pageCounts = new HashMap<>();
+        for (Level level : this.home.getLevels()) {
+            pageCounts.put(level, getLevelPageCount(level));
+        }
 
+        // get the total number of available pages in the home
+        int totalPages = 0;
+        for (int val : pageCounts.values()) {
+            totalPages += val;
+        }
+
+        if (page >= totalPages) {
+            return null;
+        }
+
+        // ex. level 0 has page count 1
+        // prevfloor = 0, high = 1; the condition for a page being on level 0 is 0 <= p < 1
+        // additionally, if level 0 is the only level, this means size of the level list is 1 and we need
+        // i < size at all times.
+        // i < size ensures our loop doesn't run forever
+
+        int nLevels = this.home.getLevels().size();
+
+        int prevFloor = 0;
+        int i = 0;
+        Level currLevel = this.home.getLevels().get(i);
+
+        while (!(prevFloor <= page && page < pageCounts.get(currLevel)) && i < nLevels) {
+            currLevel = this.home.getLevels().get(i);
+            prevFloor = pageCounts.get(currLevel);
+            i++;
+        }
+        // (prevFloor <= page && page < pageCounts.get(currLevel)) is True OR i >= this.home.getLevels().size()
+
+        if (!(page < pageCounts.get(currLevel)) && (i >= nLevels)) {
+            return null;
+        }
+        return currLevel;
+    }
+
+    private int getLevelPageCount(Level level) {
         Level prevSelectedLevel = this.home.getSelectedLevel();
         this.home.setSelectedLevel(level);
 
@@ -474,8 +535,7 @@ public class HomePrintableComponent extends JComponent implements Printable {
         }
         dummyGraphics.dispose();
 
-        return this.pageCount;
-
+        return levelPageCount;
     }
 
     /**
