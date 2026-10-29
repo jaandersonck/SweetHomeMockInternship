@@ -373,34 +373,17 @@ public class HomePrintableComponent extends JComponent implements Printable {
                 this.furniturePageCount++;
             }
         }
-
-        Level prevSelectedLevel = this.home.getSelectedLevel();
-
-        // by this point, we know the page is NOT a FurnitureTable, and COULD be a plan
         if (pageExists == NO_SUCH_PAGE
                 && planView != null
                 && (homePrint == null || homePrint.isPlanPrinted())) {
-
             // Try to print next plan view page
-            try {
-                int planPage = page - this.furniturePageCount;
-                LevelPageInfo levelPageInfo = getLevelPageInfo(planPage);
-
-                if (levelPageInfo != null) {
-                    this.home.setSelectedLevel(levelPageInfo.level);
-                    pageExists = ((Printable) planView).print(g2D, pageFormat, levelPageInfo.pageNumber);
-                    if (pageExists == PAGE_EXISTS
-                            && !this.printablePages.contains(page)) {
-                        this.printablePages.add(page);
-                        this.planPageCount++;
-                    }
-                }
-            } finally {
-                this.home.setSelectedLevel(prevSelectedLevel);
+            pageExists = ((Printable)planView).print(g2D, pageFormat, page - this.furniturePageCount);
+            if (pageExists == PAGE_EXISTS
+                    && !this.printablePages.contains(page)) {
+                this.printablePages.add(page);
+                this.planPageCount++;
             }
         }
-
-        // 3d view is disabled in our version
         View view3D = this.controller.getHomeController3D().getView();
         if (pageExists == NO_SUCH_PAGE
                 && view3D != null
