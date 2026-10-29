@@ -354,7 +354,6 @@ public class HomePrintableComponent extends JComponent implements Printable {
                 furnitureFilter = furnitureTable.getFurnitureFilter();
                 furnitureTable.setFurnitureFilter(new FurnitureTable.FurnitureFilter() {
                     public boolean include(Home home, HomePieceOfFurniture piece) {
-                        // Print only furniture at selected level when the plan or the 3D view is printed
                         return (furnitureFilter == null || furnitureFilter.include(home, piece))
                                 && (piece.getLevel() == null || piece.getLevel().isViewable());
                     }
@@ -374,7 +373,7 @@ public class HomePrintableComponent extends JComponent implements Printable {
                 this.furniturePageCount++;
             }
         }
-        
+
         Level prevSelectedLevel = this.home.getSelectedLevel();
 
         // by this point, we know the page is NOT a FurnitureTable, and COULD be a plan
