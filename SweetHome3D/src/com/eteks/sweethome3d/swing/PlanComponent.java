@@ -2027,7 +2027,12 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
   private LevelPageInfo getLevelPageInfo(int page, PageFormat pageFormat) {
     Map<Level, Integer> pageCounts = new HashMap<>();
     for (Level level : this.home.getLevels()) {
-      pageCounts.put(level, getLevelPageCount(level, pageFormat));
+      // don't consider hidden levels
+      if(level.isViewable()) {
+          pageCounts.put(level, getLevelPageCount(level, pageFormat));
+      } else {
+          pageCounts.put(level, 0);
+      }
     }
 
     // get the total number of available pages in the home
