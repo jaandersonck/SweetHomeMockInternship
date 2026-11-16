@@ -2096,6 +2096,11 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
      * Print based on all levels available in the plan
      */
     public int print(Graphics g, PageFormat pageFormat, int pageIndex) {
+        // if home has no levels, perform original print
+        if (this.home.getLevels().isEmpty()) {
+          return singlePrint(g, pageFormat, pageIndex);
+        }
+
         LevelPageInfo levelPageInfo = getLevelPageInfo(pageIndex, pageFormat);
         int page_exists = NO_SUCH_PAGE;
         if (levelPageInfo != null) {
