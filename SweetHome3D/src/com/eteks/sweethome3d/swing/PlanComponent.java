@@ -2041,7 +2041,8 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
       totalPages += val;
     }
 
-    if (page >= totalPages) {
+    // catch pages out of range
+    if (page < 0 || page >= totalPages) {
       return null;
     }
 
