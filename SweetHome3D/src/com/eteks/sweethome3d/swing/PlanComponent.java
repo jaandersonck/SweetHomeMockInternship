@@ -2027,7 +2027,12 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
   private LevelPageInfo getLevelPageInfo(int page, PageFormat pageFormat) {
     Map<Level, Integer> pageCounts = new HashMap<>();
     for (Level level : this.home.getLevels()) {
-      pageCounts.put(level, getLevelPageCount(level, pageFormat));
+      // don't consider hidden levels
+      if(level.isViewable()) {
+          pageCounts.put(level, getLevelPageCount(level, pageFormat));
+      } else {
+          pageCounts.put(level, 0);
+      }
     }
 
     // get the total number of available pages in the home
@@ -2036,7 +2041,8 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
       totalPages += val;
     }
 
-    if (page >= totalPages) {
+    // catch pages out of range
+    if (page < 0 || page >= totalPages) {
       return null;
     }
 
@@ -2096,6 +2102,11 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
      * Print based on all levels available in the plan
      */
     public int print(Graphics g, PageFormat pageFormat, int pageIndex) {
+        // if home has no levels, perform original print
+        if (this.home.getLevels().isEmpty()) {
+          return singlePrint(g, pageFormat, pageIndex);
+        }
+
         LevelPageInfo levelPageInfo = getLevelPageInfo(pageIndex, pageFormat);
         int page_exists = NO_SUCH_PAGE;
         if (levelPageInfo != null) {
